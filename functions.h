@@ -135,6 +135,7 @@ void copy_node_info(tree_node<e>* head,tree_node<e>* source) {
 	add_node(head, a);
 }
 
+///глубокое копировние дерева а и возврат указателя на корень нового дерева
 template <typename e>
 tree_node<e>* copy_binary_tree(tree_node<e>* a) {
 	if (a == nullptr) return nullptr;
@@ -146,6 +147,7 @@ tree_node<e>* copy_binary_tree(tree_node<e>* a) {
 	}
 }
 
+///удаление дерева а, вернёт nullptr
 template <typename e>
 tree_node<e>* delete_tree(tree_node<e>* a) {
 	if (a != nullptr) {

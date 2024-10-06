@@ -3,7 +3,6 @@
 #pragma once
 using namespace std;
 
-///класс бинарного дерева поиска
 template <typename e>
 class bst {
 private:

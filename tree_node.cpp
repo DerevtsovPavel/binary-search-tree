@@ -1,8 +1,9 @@
 ﻿#include <iostream>
 #include <chrono>
 #include "n_node.h"
-#include "binary_search tree.h"
+#include "binary_search_tree.h"
 #include "for_vector.h"
+#include <random>
 #pragma once
 using namespace std;
 using namespace func;
@@ -15,6 +16,10 @@ using namespace std::chrono;
 	b	 c
  d	       e*/
 int main() {
+	
+	// Инициализировать генератор случайных чисел
+	random_device rd;
+	mt19937 gen(rd());
 	setlocale(0, "Russian");
 	tree_node<int>* a = new tree_node<int>(10);
 	tree_node<int>* b = new tree_node<int>(-5);
@@ -117,15 +122,25 @@ int main() {
 	cin >> n;
 
 	vector<int> mv;
-	random_vector(mv, n);
+	random_vector(mv, n,gen);
+
 
 	bst<int> mt(mv);
 	double mid_time = 0;
-	for (int j = 0; j < 10'000; j++) {
-		int b = (int)(rand() % 10);
+
+	int min = -1'000'000;
+	int max = 1'000'000;
+	uniform_int_distribution<> distrib(min, max);
+	
+	for (int j = 0; j < 100'000; j++) {
+		int b = distrib(gen);
 
 		auto t0 = steady_clock::now();
-		mt.find(b);
+		tree_node<int>* x = mt.find(b);
+		if (x == 0)
+			cout << "Элемент не найден\n";
+		else
+			cout << "Элемент найден\n";
 		auto t1 = steady_clock::now();
 		auto delta = duration_cast<milliseconds>(t1 - t0);
 
@@ -133,7 +148,7 @@ int main() {
 		mid_time = mid_time + delta.count();
 	}
 	
-	mid_time = mid_time / 10'000;
+	mid_time = mid_time / 100'000;
 	cout << "Среднее время: " << mid_time << endl;
-	
+	cout << "Размер: "<<mt.size() << endl;
 }

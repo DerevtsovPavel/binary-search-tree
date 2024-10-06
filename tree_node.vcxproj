@@ -143,7 +143,7 @@
     <ClCompile Include="tree_node.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="binary_search tree.h" />
+    <ClInclude Include="binary_search_tree.h" />
     <ClInclude Include="for_vector.h" />
     <ClInclude Include="functions.h" />
     <ClInclude Include="n_node.h" />

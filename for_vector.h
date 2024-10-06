@@ -1,11 +1,23 @@
 #include <vector>
+#include <random>
 #pragma once
+using namespace std;
 
 ///Заполнение массива а размером n случ числами 
 template <typename el>
-void random_vector(std::vector<el>& a, size_t n)
-{
-		for (size_t i = 0; i < n; i++)
-			a.push_back((int)(rand() % 10));//заполняем случ числами
+void random_vector(vector<el>& a, size_t n, mt19937 gen)
+{	
+    // Определить диапазон
+    int min = -1'000'000;
+    int max = 1'000'000;
+
+    
+    uniform_int_distribution<> distrib(min, max);
+
+    
+    for (size_t i = 0; i < n; i++) {
+        int randomValue = distrib(gen);
+        a.push_back(randomValue);//заполняем случ числами
+    }
 
 }
