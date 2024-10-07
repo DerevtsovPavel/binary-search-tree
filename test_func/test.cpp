@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "../functions.h"
+#include "../binary_search_tree.h"
 
 TEST(TestCaseName, TestName) {
   EXPECT_EQ(1, 1);
@@ -491,4 +492,135 @@ TEST(copy, no_tree) {//указатель на пустой адресс
 
 	EXPECT_TRUE(l == v);
 
+}
+
+TEST(del_element,leave) {
+	vector<int> f{ 3,1,4,2,7,5,6,0 };
+	bst<int> t(f);
+	vector<int> b = t.tree_to_vector();//0,1,2,3,4,5,6,7
+
+	t.del(6);
+
+	vector<int> a = t.tree_to_vector();
+	b.erase(b.begin() + 6); 
+
+	EXPECT_TRUE(b == a);
+}
+
+TEST(del_element, one_child) {
+	vector<int> f{ 3,1,4,2,7,5,6,0 };
+	bst<int> t(f);
+	vector<int> b = t.tree_to_vector(); //0,1,2,3,4,5,6,7
+
+	t.del(5);
+
+	vector<int> a = t.tree_to_vector();
+	b.erase(b.begin() + 5); 
+
+	EXPECT_TRUE(b == a);
+}
+
+TEST(del_element, two_child) {
+	vector<int> f{ 3,1,4,2,7,5,6,0 };
+	bst<int> t(f);
+	vector<int> b = t.tree_to_vector(); //0,1,2,3,4,5,6,7
+
+	t.del(1);
+
+	vector<int> a = t.tree_to_vector();
+	b.erase(b.begin() + 1);
+
+	EXPECT_TRUE(b == a);
+}
+/*
+TEST(del_element, two_child2) {
+	vector<int> f{ 3,1,4,2,7,5,6,0 };
+	bst<int> t(f);
+	vector<int> b = t.tree_to_vector(); //0,1,2,3,4,5,6,7
+
+	t.del(3);
+
+	vector<int> a = t.tree_to_vector();
+	b.erase(b.begin() + 3);
+
+	EXPECT_TRUE(b == a);
+}*/
+
+///добавление элемента O(log n)
+TEST(add_element, death_tree) { //продолжим вырожденное дерево
+	vector<int> f{ 1,2,3,4,5,6,7 }; 
+	bst t(f);
+
+	f.push_back(8);
+
+	t.add(8);
+
+	vector<int> b = t.tree_to_vector();
+
+	EXPECT_TRUE(f == b);
+}
+
+TEST(add_element, death_tree2) { //нарушим вырожденность
+	vector<int> f{ 1,2,3,4,5,6,7 };
+	bst t(f);
+
+	t.add(-1);
+	t.add(0);
+
+	vector<int> b = t.tree_to_vector();
+
+	f.insert(f.begin(), 0);
+	f.insert(f.begin(), -1);
+
+	EXPECT_TRUE(f == b);
+}
+
+TEST(add_element, normal_tree) {
+	vector<int> f{ 3,1,4,2,7,5,6,0 };
+	bst t(f);
+
+	t.add(-1);
+	t.add(8);
+	vector<int> b = t.tree_to_vector(); //-1,0,1,2,3,4,5,6,7,8
+
+	vector<int> g{ -1,0,1,2,3,4,5,6,7,8 };
+	EXPECT_TRUE(g == b);
+
+
+
+}
+
+TEST(add_elemnt, one_element) {
+	vector<int> a{ 9 };
+
+	bst t(a);
+
+	t.add(0);
+	t.add(10);
+
+	vector<int> b = t.tree_to_vector();
+
+	a.insert(a.begin(), 0);
+	a.push_back(10);
+
+	EXPECT_TRUE(a == b);
+}
+
+TEST(add_element, empty_tree) {
+	bst<int> t;
+
+	t.add(0);
+
+	vector<int> a = t.tree_to_vector();
+
+	EXPECT_TRUE(a[0] == 0);
+
+	t.add(-1);
+	t.add(1);
+
+	a = t.tree_to_vector();
+
+	EXPECT_TRUE(a[0] == -1);
+	EXPECT_TRUE(a[1] == 0);
+	EXPECT_TRUE(a[2] == 1);
 }

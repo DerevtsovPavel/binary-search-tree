@@ -85,6 +85,10 @@ public:
 	
 	///добавление элемента а в дерево
 	void add(const e& a) {
+		if (head == nullptr) {
+			tree_node<e>* t = new tree_node<e>(a);
+			head = t;
+		}
 		add_node(head, a);
 	}
 
@@ -144,8 +148,14 @@ public:
 	}
 
 	///удаления узла по значению - а
-	void del(const e& a) {
-		tree_node<e>* i = find(a);
+	void del(const e& a,tree_node<e>* i = nullptr) {
+		tree_node<e>* h;
+		if (i == nullptr) {
+			i = find(a);
+			 h = head;
+		}
+		else
+			 h = i;
 		if (i == nullptr)
 			return;
 		//удаление листа
@@ -153,13 +163,13 @@ public:
 			vector<tree_node<e>*> road; //сначала пройдём к искомому, запоминая путь
 			tree_node<e>* next;
 
-			road.push_back(head);
-			if (head->inf < i->inf) { //отходим от головы
-				next = head->right;
+			road.push_back(h);
+			if (h->inf < i->inf) { //отходим от головы
+				next = h->right;
 				road.push_back(next);
 			}
 			else {
-				next = head->left;
+				next = h->left;
 				road.push_back(next);
 			}
 
@@ -189,13 +199,24 @@ public:
 			vector<tree_node<e>*> road; //сначала пройдём к искомому, запоминая путь
 			tree_node<e>* next;
 
-			road.push_back(head);
-			if (head->inf < i->inf) { //отходим от головы
-				next = head->right;
+			if (h->inf == i->inf) {
+				if (h->right != nullptr)
+					next = h->right;
+				else
+					next = h->left;
+				e w = h->inf;
+				h->inf = next->inf;
+				next->inf = w;
+				del(a, next);
+			}
+
+			road.push_back(h);
+			if (h->inf < i->inf) { //отходим от головы
+				next = h->right;
 				road.push_back(next);
 			}
 			else {
-				next = head->left;
+				next = h->left;
 				road.push_back(next);
 			}
 
@@ -247,13 +268,24 @@ public:
 				n->inf = i->inf;
 				i->inf = w;
 				if (n->left != nullptr or n->right != nullptr)
-					del(a);
-				else
+					del(a,n);
+				else {
+					if (i->left == n)
+						i->left = nullptr;
+					if (i->right == n)
+						i->right = nullptr;
 					delete n;
+				}
 			}
 
-			head = i->left;
-			delete i;
+			
 		}
+	}
+
+	///Перевод дерева в вектор с помощью обхода LNR
+	vector<e> tree_to_vector() {
+		vector<e> a;
+		LNR_tree_to_vector(head, a);
+		return a;
 	}
 };

@@ -132,7 +132,8 @@ int main() {
 	int max = 1'000'000;
 	uniform_int_distribution<> distrib(min, max);
 	
-	for (int j = 0; j < 100'000; j++) {
+	auto t2 = steady_clock::now();
+	for (int j = 0; j < 10'000; j++) {
 		int b = distrib(gen);
 
 		auto t0 = steady_clock::now();
@@ -147,8 +148,11 @@ int main() {
 		cout << "Время: " << delta << endl;
 		mid_time = mid_time + delta.count();
 	}
-	
-	mid_time = mid_time / 100'000;
+	auto t3 = steady_clock::now();
+	auto delta2 = duration_cast<milliseconds>(t2 - t3);
+	mid_time = mid_time / 10'000;
+	double mid_time2 = delta2.count()/10'000;
 	cout << "Среднее время: " << mid_time << endl;
+	cout << "Среднее время2: " << mid_time2 << endl;
 	cout << "Размер: "<<mt.size() << endl;
 }
