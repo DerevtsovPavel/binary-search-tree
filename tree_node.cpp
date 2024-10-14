@@ -101,7 +101,8 @@ int main() {
 	bst<int> et(l);
 	et.print();
 	tree_node<int>* cc = et.find(1);
-	cc = et.following_largest(cc);
+	vector<tree_node<int>*> bb;
+	cc = et.following_largest(cc,bb);
 	cout << cc->inf << endl;
 	cout << "-------------------" << endl;
 
@@ -121,38 +122,41 @@ int main() {
 	size_t n;
 	cin >> n;
 
-	vector<int> mv;
-	random_vector(mv, n,gen);
-
-
-	bst<int> mt(mv);
-	double mid_time = 0;
-
-	int min = -1'000'000;
-	int max = 1'000'000;
-	uniform_int_distribution<> distrib(min, max);
 	
-	auto t2 = steady_clock::now();
-	for (int j = 0; j < 10'000; j++) {
-		int b = distrib(gen);
+	auto dv = duration_cast<milliseconds>(steady_clock::now()- steady_clock::now());
+	auto t0 = steady_clock::now();
+	for (int i = 0; i < 100; i++) {
+		vector<int> mv;
+		auto t4 = steady_clock::now();
+		random_vector(mv, n, gen);
+		bst<int> mt(mv);
 
-		auto t0 = steady_clock::now();
-		tree_node<int>* x = mt.find(b);
-		if (x == 0)
-			cout << "Элемент не найден\n";
-		else
-			cout << "Элемент найден\n";
-		auto t1 = steady_clock::now();
-		auto delta = duration_cast<milliseconds>(t1 - t0);
+		int min = -1'000'000;
+		int max = 1'000'000;
+		uniform_int_distribution<> distrib(min, max);
 
-		cout << "Время: " << delta << endl;
-		mid_time = mid_time + delta.count();
+		auto t5 = steady_clock::now();
+		dv = dv + duration_cast<milliseconds>(t5 - t4);
+
+		for (int j = 0; j < 10'000; j++) {
+			int b = distrib(gen);
+
+			tree_node<int>* x = mt.find(b);
+
+		}
+		
 	}
-	auto t3 = steady_clock::now();
-	auto delta2 = duration_cast<milliseconds>(t2 - t3);
-	mid_time = mid_time / 10'000;
-	double mid_time2 = delta2.count()/10'000;
-	cout << "Среднее время: " << mid_time << endl;
-	cout << "Среднее время2: " << mid_time2 << endl;
-	cout << "Размер: "<<mt.size() << endl;
+	auto t1 = steady_clock::now();
+	auto delta = duration_cast<milliseconds>(t1- t0);
+	delta = delta - dv;
+	double mid_time = 1.0 * delta.count() / 100;
+
+	cout << "Время: " << mid_time << endl;
+
+	vector<int> hj{ 6,1,8,2,4,9,0,3 };
+	bst u(hj);
+
+	for (int i:u) {
+		cout << i << endl;
+	}
 }

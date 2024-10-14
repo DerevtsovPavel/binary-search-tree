@@ -532,7 +532,7 @@ TEST(del_element, two_child) {
 
 	EXPECT_TRUE(b == a);
 }
-/*
+
 TEST(del_element, two_child2) {
 	vector<int> f{ 3,1,4,2,7,5,6,0 };
 	bst<int> t(f);
@@ -544,7 +544,7 @@ TEST(del_element, two_child2) {
 	b.erase(b.begin() + 3);
 
 	EXPECT_TRUE(b == a);
-}*/
+}
 
 ///добавление элемента O(log n)
 TEST(add_element, death_tree) { //продолжим вырожденное дерево
@@ -623,4 +623,54 @@ TEST(add_element, empty_tree) {
 	EXPECT_TRUE(a[0] == -1);
 	EXPECT_TRUE(a[1] == 0);
 	EXPECT_TRUE(a[2] == 1);
+}
+
+TEST(bst, copy_tree) {
+	vector<int> a{ 3,1,4,2,7,5,6,0 };
+
+	bst t1(a);
+
+	bst t2 = t1;
+
+	vector<int> j = t1.tree_to_vector();
+	vector<int> i = t2.tree_to_vector();
+
+	EXPECT_TRUE(i == j);
+}
+
+TEST(bst, depth) {
+	vector<int> f{ 3,1,4,2,7,5,6,0 };
+	bst t(f);
+
+	EXPECT_TRUE(t.depth() == 4);
+}
+
+TEST(bst, size) {
+	vector<int> f{ 3,1,4,2,7,5,6,0 };
+	bst t(f);
+
+	EXPECT_TRUE(t.size() == f.size());
+}
+
+TEST(bst, find) {
+	vector<int> f{ 3,1,4,2,7,5,6,0 };
+	bst t(f);
+
+	EXPECT_TRUE(t.find(3)->inf == 3);
+	EXPECT_TRUE(t.find(9) == 0);
+
+}
+
+TEST(bst, add) {
+	vector<int> f{ 3,1,4,2,7,5,6,0 };
+	bst t(f);
+	vector a = t.tree_to_vector();
+
+	t.add(-1);
+	a.insert(a.begin(), -1);
+
+	vector u = t.tree_to_vector();
+	
+	
+	EXPECT_TRUE(u==a);
 }

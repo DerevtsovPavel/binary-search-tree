@@ -37,6 +37,24 @@ namespace func {
 			find(node->left, a);
 		
 	}
+
+	///поиск элемента в дереве с указат на голову - node, по значению - а, path - путь от node до a
+	template <typename e>
+	tree_node<e>* find(tree_node<e>* node, const e& a,vector<tree_node<e>*>& path) {
+		if (node == nullptr)
+			return nullptr;
+		else if (node->inf == a)
+			return node;
+		else if (node->inf < a) {
+			path.push_back(node);
+			find(node->right, a,path);
+		}
+		else {
+			path.push_back(node);
+			find(node->left, a,path);
+		}
+
+	}
 }
 
 ///ф-ция печати узла - а

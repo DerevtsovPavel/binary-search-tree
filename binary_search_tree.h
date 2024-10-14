@@ -1,5 +1,6 @@
 #include "tree_node.h"
 #include "functions.h"
+#include "stack"
 #pragma once
 using namespace std;
 
@@ -8,10 +9,72 @@ template <typename e>
 class bst {
 private:
 	tree_node<e>* head;//корень дерева
+	
 
 	tree_node<e>* get_head() {
 		return head;
 	}
+
+	class iterator {
+		tree_node<e>* current;
+		stack<tree_node<e>*> st;
+	public:
+		iterator() {
+			current = nullptr;
+		}
+		iterator(tree_node<e>* c) {
+			current = c;
+			if (current->right != 0)
+				st.push(current->right);
+			if (current->left != 0)
+				st.push(current->left);
+		}
+
+		bool operator == (const iterator& x) const {
+			return current == x.current;
+		}
+		
+		bool operator != (const iterator& x) const {
+			return current != x.current;
+		}
+
+		e& operator *() {
+			return current->inf;
+		}
+
+		iterator operator ++(e) {
+			iterator tmp(current);
+			current = st.top();
+			st.pop();
+			if (current->right!=nullptr){
+				st.push(current->right);
+			}
+			if (current->left != nullptr) {
+				st.push(current->left);
+			}
+			return current;
+		}
+
+		iterator operator ++() {
+
+			if (st.empty())
+				current = nullptr;
+			else {
+				current = st.top();
+				st.pop();
+				if (current->right != nullptr) {
+					st.push(current->right);
+				}
+				if (current->left != nullptr) {
+					st.push(current->left);
+				}
+			}
+			return current;
+		}
+			
+			
+			
+	};
 	
 public:
 	///конструктор по умолчанию
@@ -45,6 +108,13 @@ public:
 		NLR(head, a.head->right, copy_node_info);
 	}
 
+	iterator begin() {
+		return iterator(head);
+	}
+
+	iterator end() {
+		return iterator();
+	}
 	///оператор присваивания копированием
 	bst<e>& operator = (bst<e>& a) {
 		tree_node<e>* n = new tree_node<e>(a.get_head()->inf);
@@ -94,39 +164,42 @@ public:
 
 	///поиск следующего наибольшего для узла а, вернёт указатель на него
 	template<typename e>
-	tree_node<e>* following_largest(const tree_node<e>* a) {
+	tree_node<e>* following_largest(const tree_node<e>* a, vector<tree_node<e>*>& road) {
 		tree_node<e>* next = nullptr;
+		//сначала пройдём к искомому, запоминая путь
+		if (head == a) return nullptr;
+
+		road.push_back(head);
+		if (head->inf < a->inf) { //отходим от головы
+			next = head->right;
+			road.push_back(next);
+		}
+		else {
+			next = head->left;
+			road.push_back(next);
+		}
+
+		while (next != a) {
+			if (next->inf < a->inf)
+				next = next->right;
+
+			else
+				next = next->left;
+			road.push_back(next);
+
+		}
+
 		if (a->right != nullptr) {
 			next = a->right;
-			while (next->left != nullptr)
+			road.push_back(next);
+			while (next->left != nullptr) {
 				next = next->left;
+				road.push_back(next);
+			}
 			return next;
 		}
 
 		else {
-			vector<tree_node<e>*> road; //сначала пройдём к искомому, запоминая путь
-			if (head == a) return nullptr;
-
-			road.push_back(head);
-			if (head->inf < a->inf) { //отходим от головы
-				next = head->right;
-				road.push_back(next);
-			}
-			else {
-				next = head->left;
-				road.push_back(next);
-			}
-
-			while (next != a) {
-				if (next->inf < a->inf)
-					next = next->right;
-
-				else
-					next = next->left;
-				road.push_back(next);
-
-			}
-
 			road.pop_back(); //убираем искомое
 			while (road[road.size() - 1]->left != next) { //пока тек узел не будет левым потомком предыдущего
 				next = road[road.size()-1];
@@ -148,137 +221,46 @@ public:
 	}
 
 	///удаления узла по значению - а
-	void del(const e& a,tree_node<e>* i = nullptr) {
-		tree_node<e>* h;
-		if (i == nullptr) {
-			i = find(a);
-			 h = head;
-		}
-		else
-			 h = i;
-		if (i == nullptr)
-			return;
-		//удаление листа
-		if (i->left == 0 and i->right == 0) {
-			vector<tree_node<e>*> road; //сначала пройдём к искомому, запоминая путь
-			tree_node<e>* next;
+	void del(const e& a) {
+		vector<tree_node<e>*> path;
+		tree_node<e>* i = func::find(head, a, path);
 
-			road.push_back(h);
-			if (h->inf < i->inf) { //отходим от головы
-				next = h->right;
-				road.push_back(next);
-			}
-			else {
-				next = h->left;
-				road.push_back(next);
-			}
-
-			while (next != i) {
-				if (next->inf < i->inf)
-					next = next->right;
-
-				else
-					next = next->left;
-				road.push_back(next);
-
-			}
-
-			road.pop_back(); //убираем искомое
-
-			tree_node<e>* p = road[road.size() - 1];
-			if (p->right == i)
-				p->right = nullptr;
-			if (p->left == i)
-				p->left = nullptr;
+		// удаление листа
+		if (i->left == nullptr and i->right == nullptr) { 
+			if (path[path.size() - 1]->left == i)
+				path[path.size() - 1]->left = nullptr;
+			else
+				path[path.size() - 1]->right = nullptr;
 			delete i;
-			return;
 		}
 
-		//удаление узла с одним потомком
-		if ((i->left != 0 and i->right == 0) or (i->left == 0 and i->right != 0)) {
-			vector<tree_node<e>*> road; //сначала пройдём к искомому, запоминая путь
-			tree_node<e>* next;
+		//один левый потомок
+		else if (i->left != nullptr and i->right == nullptr) {
+			if (path[path.size() - 1]->left == i)
+				path[path.size() - 1]->left = i->left;
 
-			if (h->inf == i->inf) {
-				if (h->right != nullptr)
-					next = h->right;
-				else
-					next = h->left;
-				e w = h->inf;
-				h->inf = next->inf;
-				next->inf = w;
-				del(a, next);
-			}
-
-			road.push_back(h);
-			if (h->inf < i->inf) { //отходим от головы
-				next = h->right;
-				road.push_back(next);
-			}
-			else {
-				next = h->left;
-				road.push_back(next);
-			}
-
-			while (next != i) {
-				if (next->inf < i->inf)
-					next = next->right;
-
-				else
-					next = next->left;
-				road.push_back(next);
-
-			}
-
-			road.pop_back(); //убираем искомое
-
-			tree_node<e>* p = road[road.size() - 1];
-
-			if (p->right == i) {
-				if (i->right != 0) {
-					p->right = i->right;
-					i->right = nullptr;
-				}
-				else {
-					p->right = i->left;
-					i->left = nullptr;
-				}
-
-			}
-			else {
-				if (i->right != 0) {
-					p->left = i->right;
-					i->right = nullptr;
-				}
-				else {
-					p->left = i->left;
-					i->left = nullptr;
-				}
-			}
-			delete i;
-			return;
-		}
-
-		///удаление узла с двумя потомками
-		else
-		{
-			tree_node<e>* n = following_largest(i);
-			if (n != 0) {
-				e w = n->inf;
-				n->inf = i->inf;
-				i->inf = w;
-				if (n->left != nullptr or n->right != nullptr)
-					del(a,n);
-				else {
-					if (i->left == n)
-						i->left = nullptr;
-					if (i->right == n)
-						i->right = nullptr;
-					delete n;
-				}
-			}
-
+			else
+				path[path.size() - 1]->right = i->left;
 			
+			i->left = nullptr;
+			delete i;
+
+		}
+
+		//один правый потомок
+		else if (i->right != nullptr and i->left == nullptr) {
+			if (path[path.size() - 1]->left == i)
+				path[path.size() - 1]->left = i->right;
+
+			else
+				path[path.size() - 1]->right = i->right;
+
+			i->right = nullptr;
+			delete i;
+		}
+
+		else if (i->right != nullptr and i->left != nullptr) {
+			///xnj
 		}
 	}
 
