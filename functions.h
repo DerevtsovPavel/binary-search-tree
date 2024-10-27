@@ -55,6 +55,16 @@ namespace func {
 		}
 
 	}
+
+	///обход дерева - действие, влево, действие, если слева нет, то вправо, действие. Node - корень, f - действие с узлом
+	template<typename e>
+	void NLR_tree_to_vector(tree_node<e>* node, vector<e>& v) {
+		if (node != nullptr) {
+			v.push_back(node->inf);
+			NLR_tree_to_vector(node->left, v);
+			NLR_tree_to_vector(node->right, v);
+		}
+	}
 }
 
 ///ф-ция печати узла - а
@@ -83,13 +93,16 @@ void NLR(tree_node<e>* node, void (*f)(tree_node<e>*)) {
 
 ///обход дерева - действие, влево, действие, если слева нет, то вправо, действие. Node - корень, f - действие с узлом
 template<typename e>
-void NLR(tree_node<e>* node,tree_node<e>* src, void (*f)(tree_node<e>*,tree_node<e>*)) {
+void NLR(tree_node<e>* node, tree_node<e>* src, void (*f)(tree_node<e>*, tree_node<e>*)) {
 	if (src != nullptr) {
-		f(node,src);
-		NLR(node, src->left,f);
-		NLR(node, src->right,f);
+		f(node, src);
+		NLR(node, src->left, f);
+		NLR(node, src->right, f);
 	}
 }
+
+
+
 
 ///обход дерева - сначала максимум влево, действие, затем вверх и вправо,макс влево, действие. Node - корень, f - действие с узлом
 template<typename e>

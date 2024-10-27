@@ -15,46 +15,58 @@ private:
 		return head;
 	}
 
+	///класс итератора по дереву в стиле STL, используя обход NLR
 	class iterator {
 		tree_node<e>* current;
-		stack<tree_node<e>*> st;
+		stack<tree_node<e>*> st; //стек для обхода
 	public:
 		iterator() {
 			current = nullptr;
 		}
 		iterator(tree_node<e>* c) {
 			current = c;
-			if (current->right != 0)
-				st.push(current->right);
-			if (current->left != 0)
-				st.push(current->left);
+			if (current != nullptr) {
+				if (current->right != 0)
+					st.push(current->right);
+				if (current->left != 0)
+					st.push(current->left);
+			}
 		}
 
+		///перегрузка оператора равно
 		bool operator == (const iterator& x) const {
 			return current == x.current;
 		}
 		
+		///перегрузка оператора не равно
 		bool operator != (const iterator& x) const {
 			return current != x.current;
 		}
 
-		e& operator *() {
+		///перегрузка оператора доступа к данным
+		e& operator *() const {
 			return current->inf;
 		}
 
+		///перегрузка оператора постфиксный инкремент
 		iterator operator ++(e) {
 			iterator tmp(current);
-			current = st.top();
-			st.pop();
-			if (current->right!=nullptr){
-				st.push(current->right);
+			if (st.empty())
+				current = nullptr;
+			else {
+				current = st.top();
+				st.pop();
+				if (current->right != nullptr) {
+					st.push(current->right);
+				}
+				if (current->left != nullptr) {
+					st.push(current->left);
+				}
 			}
-			if (current->left != nullptr) {
-				st.push(current->left);
-			}
-			return current;
+			return tmp;
 		}
 
+		///перегрузка оператора префиксный инкремент
 		iterator operator ++() {
 
 			if (st.empty())
@@ -167,26 +179,27 @@ public:
 	tree_node<e>* following_largest(const tree_node<e>* a, vector<tree_node<e>*>& road) {
 		tree_node<e>* next = nullptr;
 		//сначала пройдём к искомому, запоминая путь
-		if (head == a) return nullptr;
 
 		road.push_back(head);
-		if (head->inf < a->inf) { //отходим от головы
-			next = head->right;
-			road.push_back(next);
-		}
-		else {
-			next = head->left;
-			road.push_back(next);
-		}
+		if (head != a) {
+			if (head->inf < a->inf) { //отходим от головы
+				next = head->right;
+				road.push_back(next);
+			}
+			else {
+				next = head->left;
+				road.push_back(next);
+			}
 
-		while (next != a) {
-			if (next->inf < a->inf)
-				next = next->right;
+			while (next != a) {
+				if (next->inf < a->inf)
+					next = next->right;
 
-			else
-				next = next->left;
-			road.push_back(next);
+				else
+					next = next->left;
+				road.push_back(next);
 
+			}
 		}
 
 		if (a->right != nullptr) {
@@ -220,14 +233,25 @@ public:
 			head = delete_tree(head);
 	}
 
-	///удаления узла по значению - а
-	void del(const e& a) {
+	///удаления узла по значению - а, в поддереве h с предком pred
+	void del(const e& a,tree_node<e>* h = nullptr, tree_node<e>* pred=nullptr) {
 		vector<tree_node<e>*> path;
-		tree_node<e>* i = func::find(head, a, path);
+		tree_node<e>* i;
+		if (h == nullptr) {
+			i = func::find(head, a, path);
+		}
+		else
+			i = h;
 
 		// удаление листа
 		if (i->left == nullptr and i->right == nullptr) { 
-			if (path[path.size() - 1]->left == i)
+			if (pred != nullptr) {
+				if (pred->left == i)
+					pred->left = nullptr;
+				else
+					pred->right = nullptr;
+			}
+			else if (path[path.size() - 1]->left == i)
 				path[path.size() - 1]->left = nullptr;
 			else
 				path[path.size() - 1]->right = nullptr;
@@ -236,7 +260,17 @@ public:
 
 		//один левый потомок
 		else if (i->left != nullptr and i->right == nullptr) {
-			if (path[path.size() - 1]->left == i)
+
+			if (pred != nullptr) {
+				if (pred->left == i) {
+						pred->left = i->left;
+				}
+				else {
+						pred->right = i->left;
+				}
+			}
+
+			else if (path[path.size() - 1]->left == i)
 				path[path.size() - 1]->left = i->left;
 
 			else
@@ -249,7 +283,15 @@ public:
 
 		//один правый потомок
 		else if (i->right != nullptr and i->left == nullptr) {
-			if (path[path.size() - 1]->left == i)
+			if (pred != nullptr) {
+				if (pred->left == i) {
+					pred->left = i->right;
+				}
+				else {
+					pred->right = i->right;
+				}
+			}
+			else if (path[path.size() - 1]->left == i)
 				path[path.size() - 1]->left = i->right;
 
 			else
@@ -259,8 +301,15 @@ public:
 			delete i;
 		}
 
+		//два потомка
 		else if (i->right != nullptr and i->left != nullptr) {
-			///xnj
+			vector<tree_node<e>*> road;
+			tree_node<e>* next = following_largest(i, road);
+
+			e w = i->inf;
+			i->inf = next->inf;
+			next->inf = w;
+			del(a, next, road[road.size() - 2]);
 		}
 	}
 
@@ -268,6 +317,12 @@ public:
 	vector<e> tree_to_vector() {
 		vector<e> a;
 		LNR_tree_to_vector(head, a);
+		return a;
+	}
+
+	vector<e> NLR_tree_to_vector() {
+		vector<e> a;
+		func::NLR_tree_to_vector(head, a);
 		return a;
 	}
 };

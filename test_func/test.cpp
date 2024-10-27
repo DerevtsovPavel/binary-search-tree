@@ -546,6 +546,21 @@ TEST(del_element, two_child2) {
 	EXPECT_TRUE(b == a);
 }
 
+TEST(del_element, two_child3) {
+	vector<int> f{ 8,3,10,9,1,6,14,4,7,13 };
+	bst<int> t(f);
+	vector<int> b = t.tree_to_vector(); //1,3,4,6,7,8,9,10,13,14
+
+	t.del(8);
+
+	vector<int> a = t.tree_to_vector();
+
+	b.erase(b.begin() + 5);
+
+	EXPECT_TRUE(a == b);
+	
+}
+
 ///добавление элемента O(log n)
 TEST(add_element, death_tree) { //продолжим вырожденное дерево
 	vector<int> f{ 1,2,3,4,5,6,7 }; 
@@ -673,4 +688,28 @@ TEST(bst, add) {
 	
 	
 	EXPECT_TRUE(u==a);
+}
+
+TEST(iterator, empty_tree) {
+	bst<int> z;
+
+	for (int i : z) {
+		ASSERT_TRUE(0);
+	}
+}
+
+TEST(iterator, tree) {
+	vector<int> a0, a1;
+
+	vector<int> d{ 9,3,1,4,5,8,6,5,47 };
+
+	bst b(d);
+
+	a0 = b.NLR_tree_to_vector();
+
+	for (int i : b) {
+		a1.push_back(i);
+	}
+
+	EXPECT_TRUE(a0 == a1);
 }

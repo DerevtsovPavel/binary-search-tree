@@ -8,8 +8,8 @@ template <typename el>
 void random_vector(vector<el>& a, size_t n, mt19937 gen)
 {	
     // Определить диапазон
-    int min = -1'000'000;
-    int max = 1'000'000;
+    int min = -100'000'000;
+    int max = 100'000'000;
 
     
     uniform_int_distribution<> distrib(min, max);

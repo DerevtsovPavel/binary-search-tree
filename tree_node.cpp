@@ -125,14 +125,14 @@ int main() {
 	
 	auto dv = duration_cast<milliseconds>(steady_clock::now()- steady_clock::now());
 	auto t0 = steady_clock::now();
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 10'000; i++) {
 		vector<int> mv;
 		auto t4 = steady_clock::now();
 		random_vector(mv, n, gen);
 		bst<int> mt(mv);
 
-		int min = -1'000'000;
-		int max = 1'000'000;
+		int min = -100'000'000;
+		int max = 100'000'000;
 		uniform_int_distribution<> distrib(min, max);
 
 		auto t5 = steady_clock::now();
@@ -149,14 +149,14 @@ int main() {
 	auto t1 = steady_clock::now();
 	auto delta = duration_cast<milliseconds>(t1- t0);
 	delta = delta - dv;
-	double mid_time = 1.0 * delta.count() / 100;
+	double mid_time = 1.0 * delta.count() / 10'000;
 
 	cout << "Время: " << mid_time << endl;
 
-	vector<int> hj{ 6,1,8,2,4,9,0,3 };
+	vector<int> hj{ 6,1,8,0,2,9,4,3 };
 	bst u(hj);
 
-	for (int i:u) {
+	for (int i:u) { //обход NLR
 		cout << i << endl;
 	}
 }
